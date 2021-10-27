@@ -27,19 +27,18 @@ const userSchema = (sequelize, DataTypes) => {
 		const user = await this.findOne({ where: { username } });
 		const valid = await bcrypt.compare(password, user.password);
 		if (valid) { return user };
-		console.log(user);
 		throw new Error('Invalid User');
 	}
 
 	// Bearer AUTH: Validating a token
 	model.authenticateToken = async function (token) {
 		try {
-			const parsedToken = jwt.verify(token, process.env.SECRET);
-			const user = this.findOne({ where: { username: parsedToken.username } })
-			if (user) { return user; }
-			throw new Error("User Not Found");
+			const parsedToken = jwt.verify(token, secret);
+			const user = await this.findOne({ where: { username: parsedToken.username } })
+			if (user) { return user }
+			throw new Error('User Not Found');
 		} catch (e) {
-			throw new Error(e.message)
+			throw new Error(e.message);
 		}
 	}
 
